@@ -9,3 +9,4 @@ jdk:
 sudo: false
 
 script: gradle test
+
