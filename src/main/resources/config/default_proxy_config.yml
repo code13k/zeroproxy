@@ -1,0 +1,35 @@
+# Example-1
+- location: /zeroproxy_example
+  type: round-robin
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://1.1.1.1:3000
+
+# Example-2
+- location: /zeroproxy/example
+  type: random
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://1.1.1.1:3000
+    - http://1.1.1.1:3001
+
+# Example-3
+- location: /zeroproxy/example/1
+  type: all
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://1.1.1.1:3000
+    - http://1.1.1.1:3001
+    - http://1.1.1.1:3002
+
+# Example-4
+- location: /
+  type: round-robin
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://1.1.1.1:3000
+

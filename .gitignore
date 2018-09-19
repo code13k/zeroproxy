@@ -1,20 +1,20 @@
 # Virtual machine crash logs
-hs_err_pid*
+/hs_err_pid*
 
 # Gradle build files
-.gradle/
+/.gradle/
 
 # IDEA files
-.idea/
+/.idea/
 
 # Vertx
-.vertx
+/.vertx
 
 # Build
-build/
+/build/
 
 # Log
-log/
+/log/
 
 # Config
-config/
+/config/

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <!-- Stdout -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight([%d{MM-dd HH:mm}] [%level] [%thread] [%logger{16}:%line]) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/zeroproxy.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>log/zeroproxy-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{MM-dd HH:mm}] [%level] [%thread] [%logger{16}:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Telegram -->
+    <!--
+    <appender name="TELEGRAM" class="com.github.paolodenti.telegram.logback.TelegramAppender">
+        <botToken></botToken>
+        <chatId></chatId>
+        <minInterval>0</minInterval>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>[%d{MM-dd HH:mm}] [%level] [%thread] [%logger{16}:%line] %msg%n</pattern>
+        </layout>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+    -->
+
+    <!-- Slack -->
+    <!--
+    <appender name="SLACK_SYNC" class="com.github.maricn.logback.SlackAppender">
+        <webhookUri></webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>[%d{MM-dd HH:mm}] [%level] [%thread] [%logger{16}:%line] %msg%n</pattern>
+        </layout>
+    </appender>
+    <appender name="SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SLACK_SYNC" />
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+    -->
+
+    <!-- Mode -->
+    <logger name="org.code13k.zeroproxy" level="INFO"/>
+    <root level="WARN">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+
+
+
