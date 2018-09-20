@@ -88,28 +88,9 @@ public class ProxyHttpClient {
                 @Override
                 public void accept(HttpResponse<Buffer> response) {
                     /**
-                     * Single Request
+                     * Multiple Request
                      */
-                    if (targetCount == 1) {
-                        ProxyResponse proxyResponse = new ProxyResponse();
-                        if (response == null) {
-                            proxyResponse.setStatusCode(504);
-                            proxyResponse.setStatusMessage("Gateway Time-out");
-                            proxyResponse.setHeaders(makeDefaultHeaders());
-                            proxyResponse.setBody(null);
-                        } else {
-                            proxyResponse.setStatusCode(response.statusCode());
-                            proxyResponse.setStatusMessage(response.statusMessage());
-                            proxyResponse.setHeaders(response.headers());
-                            proxyResponse.setBody(response.body());
-                        }
-                        consumer.accept(proxyResponse);
-                    }
-
-                    /**
-                     * Multi Request
-                     */
-                    else {
+                    if (ProxyConfig.isMultipleRequest(mProxyInfo) == true) {
                         Map<String, Object> resultItem = new HashMap<>();
                         if (response == null) {
                             resultItem.put("uri", uri);
@@ -136,6 +117,25 @@ public class ProxyHttpClient {
                             proxyResponse.setBody(proxyBody);
                             consumer.accept(proxyResponse);
                         }
+                    }
+
+                    /**
+                     * Single Request
+                     */
+                    else {
+                        ProxyResponse proxyResponse = new ProxyResponse();
+                        if (response == null) {
+                            proxyResponse.setStatusCode(504);
+                            proxyResponse.setStatusMessage("Gateway Time-out");
+                            proxyResponse.setHeaders(makeDefaultHeaders());
+                            proxyResponse.setBody(null);
+                        } else {
+                            proxyResponse.setStatusCode(response.statusCode());
+                            proxyResponse.setStatusMessage(response.statusMessage());
+                            proxyResponse.setHeaders(response.headers());
+                            proxyResponse.setBody(response.body());
+                        }
+                        consumer.accept(proxyResponse);
                     }
                 }
             });

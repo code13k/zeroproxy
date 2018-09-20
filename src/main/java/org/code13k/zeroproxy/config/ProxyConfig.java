@@ -114,7 +114,7 @@ public class ProxyConfig extends BasicConfig {
                 proxyInfo.setTargets(targets);
 
                 // Check validation
-                if(StringUtils.isEmpty(proxyInfo.getLocation())==true){
+                if (StringUtils.isEmpty(proxyInfo.getLocation()) == true) {
                     mLogger.error("Invalid channel (location is invalid)");
                 } else if (type.equalsIgnoreCase(ChannelType.ROUND_ROBIN) == false
                         && type.equalsIgnoreCase(ChannelType.RANDOM) == false
@@ -154,5 +154,13 @@ public class ProxyConfig extends BasicConfig {
 
         // End
         mLogger.info("------------------------------------------------------------------------");
+    }
+
+    public static boolean isMultipleRequest(ProxyInfo proxyInfo) {
+        if (proxyInfo.getType().equalsIgnoreCase(ChannelType.ALL) == true) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
