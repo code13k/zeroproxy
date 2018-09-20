@@ -57,7 +57,7 @@ jar {
     baseName = 'code13k-zeroproxy'
     manifest {
         attributes(
-                'Implementation-Title': 'Code13k ZeroProxy',
+                'Implementation-Title': 'ZeroProxy by code13k',
                 'Implementation-Version': version,
                 'Main-Class': 'org.code13k.zeroproxy.Main'
         )
@@ -85,15 +85,3 @@ compileTestJava {
  * Application Plugin
  */
 mainClassName = 'org.code13k.zeroproxy.Main'
-
-/**
- * Custom
- */
-task runJar(dependsOn: jar) {
-    doLast {
-        javaexec {
-            main = "-jar"
-            args = [jar.archivePath]
-        }
-    }
-}
