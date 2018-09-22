@@ -18,8 +18,8 @@ It's application configuration file.
 ```yaml
 # Server port
 port:
-  main_http: 55550
-  main_ws: 55551
+  proxy_http: 55550
+  proxy_ws: 55551
   api_http: 55552
 ```
 
@@ -113,7 +113,7 @@ ws://example.com:{port}/{location}/{path}
 ```
 * port
   * Server port
-  * It's *main_http* and *main_ws* in app_config.yml.
+  * It's *proxy_http* and *proxy_ws* in app_config.yml.
 * location
   * Location
   * It's *location* in proxy_config.yml
