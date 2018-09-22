@@ -9,7 +9,7 @@ import org.code13k.zeroproxy.config.ProxyConfig;
 import org.code13k.zeroproxy.app.Env;
 import org.code13k.zeroproxy.app.Status;
 import org.code13k.zeroproxy.service.api.ApiHttpServer;
-import org.code13k.zeroproxy.service.main.MainHttpServer;
+import org.code13k.zeroproxy.service.proxy.ProxyHttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,14 +78,14 @@ public class Main {
             return;
         }
 
-        // Deploy MainHttpServer
+        // Deploy ProxyHttpServer
         try {
             DeploymentOptions options = new DeploymentOptions();
             options.setInstances(Math.max(1, Env.getInstance().getProcessorCount() / 2));
-            Vertx.vertx().deployVerticle(MainHttpServer.class.getName(), options);
+            Vertx.vertx().deployVerticle(ProxyHttpServer.class.getName(), options);
             Thread.sleep(1000);
         } catch (Exception e) {
-            mLogger.error("Failed to deploy MainHttpServer", e);
+            mLogger.error("Failed to deploy ProxyHttpServer", e);
             return;
         }
 

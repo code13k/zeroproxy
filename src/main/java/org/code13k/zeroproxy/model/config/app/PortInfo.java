@@ -3,24 +3,24 @@ package org.code13k.zeroproxy.model.config.app;
 import org.code13k.zeroproxy.model.BasicModel;
 
 public class PortInfo extends BasicModel {
-    private int mainHttp;
-    private int mainWs;
+    private int proxyHttp;
+    private int proxyWs;
     private int apiHttp;
 
-    public int getMainHttp() {
-        return mainHttp;
+    public int getProxyHttp() {
+        return proxyHttp;
     }
 
-    public void setMainHttp(int mainHttp) {
-        this.mainHttp = mainHttp;
+    public void setProxyHttp(int proxyHttp) {
+        this.proxyHttp = proxyHttp;
     }
 
-    public int getMainWs() {
-        return mainWs;
+    public int getProxyWs() {
+        return proxyWs;
     }
 
-    public void setMainWs(int mainWs) {
-        this.mainWs = mainWs;
+    public void setProxyWs(int proxyWs) {
+        this.proxyWs = proxyWs;
     }
 
     public int getApiHttp() {

@@ -1,5 +1,5 @@
 # Server port
 port:
-  main_http: 55550
-  main_ws: 55551
+  proxy_http: 55550
+  proxy_ws: 55551
   api_http: 55552

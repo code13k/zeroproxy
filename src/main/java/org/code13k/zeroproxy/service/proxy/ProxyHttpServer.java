@@ -1,4 +1,4 @@
-package org.code13k.zeroproxy.service.main;
+package org.code13k.zeroproxy.service.proxy;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.vertx.core.AbstractVerticle;
@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 
-public class MainHttpServer extends AbstractVerticle {
+public class ProxyHttpServer extends AbstractVerticle {
     // Logger
-    private static final Logger mLogger = LoggerFactory.getLogger(MainHttpServer.class);
+    private static final Logger mLogger = LoggerFactory.getLogger(ProxyHttpServer.class);
 
     // Const
-    public static final int PORT = AppConfig.getInstance().getPort().getMainHttp();
+    public static final int PORT = AppConfig.getInstance().getPort().getProxyHttp();
 
 
     /**

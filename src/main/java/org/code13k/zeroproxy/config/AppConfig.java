@@ -55,14 +55,14 @@ public class AppConfig extends BasicConfig {
             LinkedHashMap portObject = (LinkedHashMap) yamlObject.get("port");
             mLogger.trace("portObject class name = " + portObject.getClass().getName());
             mLogger.trace("portObject = " + portObject);
-            Integer portMainHttp = (Integer) portObject.get("main_http");
-            if (Util.isValidPortNumber(portMainHttp) == false) {
-                mLogger.error("Invalid main_http port : " + portMainHttp);
+            Integer portProxyHttp = (Integer) portObject.get("proxy_http");
+            if (Util.isValidPortNumber(portProxyHttp) == false) {
+                mLogger.error("Invalid proxy_http port : " + portProxyHttp);
                 return false;
             }
-            Integer portMainWs = (Integer) portObject.get("main_ws");
-            if (Util.isValidPortNumber(portMainWs) == false) {
-                mLogger.error("Invalid main_ws port : " + portMainWs);
+            Integer portProxyWs = (Integer) portObject.get("proxy_ws");
+            if (Util.isValidPortNumber(portProxyWs) == false) {
+                mLogger.error("Invalid proxy_ws port : " + portProxyWs);
                 return false;
             }
             Integer portApiHttp = (Integer) portObject.get("api_http");
@@ -70,8 +70,8 @@ public class AppConfig extends BasicConfig {
                 mLogger.error("Invalid api_http port : " + portApiHttp);
                 return false;
             }
-            mPortInfo.setMainHttp(portMainHttp);
-            mPortInfo.setMainWs(portMainWs);
+            mPortInfo.setProxyHttp(portProxyHttp);
+            mPortInfo.setProxyWs(portProxyWs);
             mPortInfo.setApiHttp(portApiHttp);
         } catch (Exception e) {
             mLogger.error("Failed to load config file", e);
@@ -91,8 +91,8 @@ public class AppConfig extends BasicConfig {
         mLogger.info("Config file path = " + getConfigFilename());
 
         // PortInfo
-        mLogger.info("main_http of PortInfo = " + mPortInfo.getMainHttp());
-        mLogger.info("main_ws of PortInfo = " + mPortInfo.getMainHttp());
+        mLogger.info("proxy_http of PortInfo = " + mPortInfo.getProxyHttp());
+        mLogger.info("proxy_ws of PortInfo = " + mPortInfo.getProxyWs());
         mLogger.info("api_http of PortInfo = " + mPortInfo.getApiHttp());
 
         // End
