@@ -2,7 +2,6 @@
 * Support http/https proxy
 * Support ws/wss proxy
 * Response use json for multiple requests.
-* Used json for responding of multiple requests
 
 
 [![Build Status](https://travis-ci.org/code13k/zeroproxy.svg?branch=master)](https://travis-ci.org/code13k/zeroproxy)
