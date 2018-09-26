@@ -1,0 +1,6 @@
+# Example-1
+- location: /helios_pub
+  targets:
+    - ws://127.0.0.1:55401
+
+

@@ -4,9 +4,8 @@ import org.code13k.zeroproxy.model.BasicModel;
 
 import java.util.ArrayList;
 
-public class ProxyInfo extends BasicModel {
+public class ProxyHttpInfo extends BasicModel {
     private String location;
-    private String type;
     private int connectTimeout;
     private int idleTimeout;
     private ArrayList<String> targets;
@@ -17,14 +16,6 @@ public class ProxyInfo extends BasicModel {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public int getConnectTimeout() {

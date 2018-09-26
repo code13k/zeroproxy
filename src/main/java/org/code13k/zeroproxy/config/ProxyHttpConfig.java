@@ -1,7 +1,7 @@
 package org.code13k.zeroproxy.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.code13k.zeroproxy.model.config.proxy.ProxyInfo;
+import org.code13k.zeroproxy.model.config.proxy.ProxyHttpInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -9,48 +9,39 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-public class ProxyConfig extends BasicConfig {
+public class ProxyHttpConfig extends BasicConfig {
     // Logger
-    private static final Logger mLogger = LoggerFactory.getLogger(ProxyConfig.class);
+    private static final Logger mLogger = LoggerFactory.getLogger(ProxyHttpConfig.class);
 
     // Data
-    private ArrayList<ProxyInfo> mChannelList = new ArrayList<>();
-
-    /**
-     * Channel Type
-     */
-    public class ChannelType {
-        public static final String ROUND_ROBIN = "round-robin";
-        public static final String RANDOM = "random";
-        public static final String ALL = "all";
-    }
+    private ArrayList<ProxyHttpInfo> mChannelList = new ArrayList<>();
 
     /**
      * Singleton
      */
     private static class SingletonHolder {
-        static final ProxyConfig INSTANCE = new ProxyConfig();
+        static final ProxyHttpConfig INSTANCE = new ProxyHttpConfig();
     }
 
-    public static ProxyConfig getInstance() {
-        return ProxyConfig.SingletonHolder.INSTANCE;
+    public static ProxyHttpConfig getInstance() {
+        return ProxyHttpConfig.SingletonHolder.INSTANCE;
     }
 
     /**
      * Constructor
      */
-    private ProxyConfig() {
-        mLogger.trace("ProxyConfig()");
+    private ProxyHttpConfig() {
+        mLogger.trace("ProxyHttpConfig()");
     }
 
     /**
      * Get channel
      */
-    public ProxyInfo getChannel(int index) {
+    public ProxyHttpInfo getChannel(int index) {
         if (index < mChannelList.size()) {
-            ProxyInfo proxyInfo = mChannelList.get(index);
-            mLogger.trace("proxyInfo = " + proxyInfo);
-            return proxyInfo;
+            ProxyHttpInfo proxyHttpInfo = mChannelList.get(index);
+            mLogger.trace("proxyHttpInfo = " + proxyHttpInfo);
+            return proxyHttpInfo;
         }
         return null;
     }
@@ -58,7 +49,7 @@ public class ProxyConfig extends BasicConfig {
     /**
      * Get all channel data
      */
-    public ArrayList<ProxyInfo> getChannelList() {
+    public ArrayList<ProxyHttpInfo> getChannelList() {
         return new ArrayList<>(mChannelList);
     }
 
@@ -71,12 +62,12 @@ public class ProxyConfig extends BasicConfig {
 
     @Override
     protected String getDefaultConfigFilename() {
-        return "default_proxy_config.yml";
+        return "default_proxy_http_config.yml";
     }
 
     @Override
     protected String getConfigFilename() {
-        return "proxy_config.yml";
+        return "proxy_http_config.yml";
     }
 
     @Override
@@ -91,13 +82,10 @@ public class ProxyConfig extends BasicConfig {
             yamlObject.forEach(item -> {
                 mLogger.trace("key=" + item);
                 LinkedHashMap itemObject = (LinkedHashMap) item;
-                ProxyInfo proxyInfo = new ProxyInfo();
+                ProxyHttpInfo proxyHttpInfo = new ProxyHttpInfo();
 
                 // Location
                 String location = (String) itemObject.get("location");
-
-                // Type
-                String type = (String) itemObject.get("type");
 
                 // Timeout
                 int connectTimeout = (Integer) itemObject.getOrDefault("connect_timeout", 0);
@@ -107,27 +95,22 @@ public class ProxyConfig extends BasicConfig {
                 ArrayList<String> targets = (ArrayList<String>) itemObject.get("targets");
 
                 // Set Channel
-                proxyInfo.setLocation(location);
-                proxyInfo.setType(type);
-                proxyInfo.setConnectTimeout(connectTimeout);
-                proxyInfo.setIdleTimeout(idleTimeout);
-                proxyInfo.setTargets(targets);
+                proxyHttpInfo.setLocation(location);
+                proxyHttpInfo.setConnectTimeout(connectTimeout);
+                proxyHttpInfo.setIdleTimeout(idleTimeout);
+                proxyHttpInfo.setTargets(targets);
 
                 // Check validation
-                if (StringUtils.isEmpty(proxyInfo.getLocation()) == true) {
+                if (StringUtils.isEmpty(proxyHttpInfo.getLocation()) == true) {
                     mLogger.error("Invalid channel (location is invalid)");
-                } else if (type.equalsIgnoreCase(ChannelType.ROUND_ROBIN) == false
-                        && type.equalsIgnoreCase(ChannelType.RANDOM) == false
-                        && type.equalsIgnoreCase(ChannelType.ALL) == false) {
-                    mLogger.error("Invalid channel (type is invalid)");
-                } else if (proxyInfo.getConnectTimeout() <= 0) {
+                } else if (proxyHttpInfo.getConnectTimeout() <= 0) {
                     mLogger.error("Invalid channel (connect_timeout is invalid)");
-                } else if (proxyInfo.getIdleTimeout() <= 0) {
+                } else if (proxyHttpInfo.getIdleTimeout() <= 0) {
                     mLogger.error("Invalid channel (idle_timeout is invalid)");
-                } else if (proxyInfo.getTargets() == null || proxyInfo.getTargets().size() == 0) {
+                } else if (proxyHttpInfo.getTargets() == null || proxyHttpInfo.getTargets().size() == 0) {
                     mLogger.error("Invalid channel (targets is invalid)");
                 } else {
-                    mChannelList.add(proxyInfo);
+                    mChannelList.add(proxyHttpInfo);
                 }
             });
         } catch (Exception e) {
@@ -141,7 +124,7 @@ public class ProxyConfig extends BasicConfig {
     protected void logging() {
         // Begin
         mLogger.info("------------------------------------------------------------------------");
-        mLogger.info("Proxy Configuration");
+        mLogger.info("Proxy HTTP Configuration");
         mLogger.info("------------------------------------------------------------------------");
 
         // Config File Path
@@ -154,13 +137,5 @@ public class ProxyConfig extends BasicConfig {
 
         // End
         mLogger.info("------------------------------------------------------------------------");
-    }
-
-    public static boolean isMultipleRequest(ProxyInfo proxyInfo) {
-        if (proxyInfo.getType().equalsIgnoreCase(ChannelType.ALL) == true) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

@@ -5,9 +5,9 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
 import org.code13k.zeroproxy.app.Env;
-import org.code13k.zeroproxy.config.ProxyConfig;
-import org.code13k.zeroproxy.model.ProxyResponse;
-import org.code13k.zeroproxy.model.config.proxy.ProxyInfo;
+import org.code13k.zeroproxy.config.ProxyHttpConfig;
+import org.code13k.zeroproxy.model.ProxyHttpResponse;
+import org.code13k.zeroproxy.model.config.proxy.ProxyHttpInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class ProxyHttpManager {
 
             // Data
             mData = new ArrayList<>();
-            ArrayList<ProxyInfo> channelList = ProxyConfig.getInstance().getChannelList();
+            ArrayList<ProxyHttpInfo> channelList = ProxyHttpConfig.getInstance().getChannelList();
             channelList.forEach(channel -> {
                 ProxyHttpClient client = new ProxyHttpClient(channel, eventLoopPoolSize);
                 mData.add(client);
@@ -63,13 +63,13 @@ public class ProxyHttpManager {
     /**
      * Proxy
      */
-    public void proxy(int channelIndex, String originPath, HttpMethod originMethod, MultiMap originHeaders, Buffer originBody, Consumer<ProxyResponse> consumer) {
+    public void proxy(int channelIndex, String originPath, HttpMethod originMethod, MultiMap originHeaders, Buffer originBody, Consumer<ProxyHttpResponse> consumer) {
         ProxyHttpClient client = mData.get(channelIndex);
-        client.proxy(originPath, originMethod, originHeaders, originBody, new Consumer<ProxyResponse>() {
+        client.proxy(originPath, originMethod, originHeaders, originBody, new Consumer<ProxyHttpResponse>() {
             @Override
-            public void accept(ProxyResponse proxyResponse) {
+            public void accept(ProxyHttpResponse proxyHttpResponse) {
                 mLogger.trace("Proxy : OK");
-                consumer.accept(proxyResponse);
+                consumer.accept(proxyHttpResponse);
                 mProcessedCount++;
             }
         });

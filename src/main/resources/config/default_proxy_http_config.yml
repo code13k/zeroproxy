@@ -1,0 +1,21 @@
+# Example-1
+- location: /helios_pub
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://127.0.0.1:55402
+
+# Example-2
+- location: /helios_api
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://127.0.0.1:55403
+    - http://127.0.0.1:55403
+
+# Example-3
+- location: /thumbly_api
+  connect_timeout: 3000
+  idle_timeout: 3000
+  targets:
+    - http://127.0.0.1:57911

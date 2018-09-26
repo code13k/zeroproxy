@@ -1,14 +1,12 @@
-# ZeroProxy is a multi purpose http proxy.
-* Support http(https) proxy
-* Support websocket proxy (Not yet)
-* Support multiple targets
+# ZeroProxy is a multi target http/websocket proxy.
+* Support http/https proxy
+* Support ws/wss proxy
+* Response use json for multiple requests.
+* Used json for responding of multiple requests
+
 
 [![Build Status](https://travis-ci.org/code13k/zeroproxy.svg?branch=master)](https://travis-ci.org/code13k/zeroproxy)
 
-
-# Supported protocol
-* http / https
-* ws / wss (Not yet)
 
 
 # Configuration
@@ -23,43 +21,39 @@ port:
   api_http: 55552
 ```
 
-## proxy_config.yml
-It's proxy configuration file.
+## proxy_http_config.yml
+It's proxy http configuration file.
 ```yaml
 # Example-1
-- location: /zeroproxy_example
-  type: round-robin
+- location: /helios_pub
   connect_timeout: 3000
   idle_timeout: 3000
   targets:
-    - http://1.1.1.1:3000
+    - http://127.0.0.1:55402
 
 # Example-2
-- location: /zeroproxy/example
-  type: random
+- location: /helios_api
   connect_timeout: 3000
   idle_timeout: 3000
   targets:
-    - http://1.1.1.1:3000
-    - http://1.1.1.1:3001
+    - http://127.0.0.1:55403
+    - http://127.0.0.1:55403
 
 # Example-3
-- location: /zeroproxy/example/1
-  type: all
+- location: /thumbly_api
   connect_timeout: 3000
   idle_timeout: 3000
   targets:
-    - http://1.1.1.1:3000
-    - http://1.1.1.1:3001
-    - http://1.1.1.1:3002
+    - http://127.0.0.1:57911
+```
 
-# Example-4
-- location: /
-  type: round-robin
-  connect_timeout: 3000
-  idle_timeout: 3000
+## proxy_ws_config.yml
+It's proxy websocket configuration file.
+```yaml
+# Example-1
+- location: /helios_pub
   targets:
-    - http://1.1.1.1:3000
+    - ws://127.0.0.1:55401
 ```
 
 ## logback.xml

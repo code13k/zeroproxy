@@ -11,9 +11,8 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.code13k.zeroproxy.app.Env;
-import org.code13k.zeroproxy.config.ProxyConfig;
-import org.code13k.zeroproxy.model.ProxyResponse;
-import org.code13k.zeroproxy.model.config.proxy.ProxyInfo;
+import org.code13k.zeroproxy.model.ProxyHttpResponse;
+import org.code13k.zeroproxy.model.config.proxy.ProxyHttpInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +29,14 @@ public class ProxyHttpClient {
 
     // Data
     private WebClient mWebClient;
-    private ProxyInfo mProxyInfo;
-    private int mRoundRobinIndex = 0;
+    private ProxyHttpInfo mProxyHttpInfo;
 
     /**
      * Constructor
      */
-    public ProxyHttpClient(ProxyInfo proxyInfo, int eventLoopPoolSize) {
-        mProxyInfo = proxyInfo;
-        mLogger.trace("ProxyHttpClient() # " + mProxyInfo);
+    public ProxyHttpClient(ProxyHttpInfo proxyHttpInfo, int eventLoopPoolSize) {
+        mProxyHttpInfo = proxyHttpInfo;
+        mLogger.trace("ProxyHttpClient() # " + mProxyHttpInfo);
 
         // Set user-agent
         String userAgent = "Code13k-ZeroProxy/" + Env.getInstance().getVersionString();
@@ -50,8 +48,8 @@ public class ProxyHttpClient {
         webClientOptions.setTrustAll(true);
         webClientOptions.setSsl(true);
         webClientOptions.setTryUseCompression(true);
-        webClientOptions.setConnectTimeout(mProxyInfo.getConnectTimeout());
-        webClientOptions.setIdleTimeout(mProxyInfo.getIdleTimeout());
+        webClientOptions.setConnectTimeout(mProxyHttpInfo.getConnectTimeout());
+        webClientOptions.setIdleTimeout(mProxyHttpInfo.getIdleTimeout());
 
         // Init VertxOptions
         VertxOptions vertxOptions = new VertxOptions();
@@ -64,7 +62,7 @@ public class ProxyHttpClient {
     /**
      * Proxy
      */
-    public void proxy(String originPath, HttpMethod originMethod, MultiMap originHeaders, Buffer originBody, Consumer<ProxyResponse> consumer) {
+    public void proxy(String originPath, HttpMethod originMethod, MultiMap originHeaders, Buffer originBody, Consumer<ProxyHttpResponse> consumer) {
         // Headers
         final MultiMap headers = MultiMap.caseInsensitiveMultiMap();
         headers.addAll(originHeaders);
@@ -87,55 +85,31 @@ public class ProxyHttpClient {
             requestTarget(uri, method, headers, body, new Consumer<HttpResponse<Buffer>>() {
                 @Override
                 public void accept(HttpResponse<Buffer> response) {
-                    /**
-                     * Multiple Request
-                     */
-                    if (ProxyConfig.isMultipleRequest(mProxyInfo) == true) {
-                        Map<String, Object> resultItem = new HashMap<>();
-                        if (response == null) {
-                            resultItem.put("uri", uri);
-                            resultItem.put("statusCode", 504);
-                            resultItem.put("statusMessage", "Gateway Time-out");
-                            resultItem.put("headers", makeDefaultHeaders());
-                            resultItem.put("body", "");
-                        } else {
-                            resultItem.put("uri", uri);
-                            resultItem.put("statusCode", response.statusCode());
-                            resultItem.put("statusMessage", response.statusMessage());
-                            resultItem.put("headers", convertHeaders(response.headers()));
-                            resultItem.put("body", response.bodyAsString());
-                        }
-                        result.add(resultItem);
-
-                        // END
-                        if (processingCount.decrementAndGet() == 0) {
-                            Buffer proxyBody = Buffer.buffer(new GsonBuilder().create().toJson(result));
-                            ProxyResponse proxyResponse = new ProxyResponse();
-                            proxyResponse.setStatusCode(200);
-                            proxyResponse.setStatusMessage("OK");
-                            proxyResponse.setHeaders(makeProxyResponseHeaders());
-                            proxyResponse.setBody(proxyBody);
-                            consumer.accept(proxyResponse);
-                        }
+                    Map<String, Object> resultItem = new HashMap<>();
+                    if (response == null) {
+                        resultItem.put("uri", uri);
+                        resultItem.put("statusCode", 504);
+                        resultItem.put("statusMessage", "Gateway Time-out");
+                        resultItem.put("headers", makeDefaultHeaders());
+                        resultItem.put("body", "");
+                    } else {
+                        resultItem.put("uri", uri);
+                        resultItem.put("statusCode", response.statusCode());
+                        resultItem.put("statusMessage", response.statusMessage());
+                        resultItem.put("headers", convertHeaders(response.headers()));
+                        resultItem.put("body", response.bodyAsString());
                     }
+                    result.add(resultItem);
 
-                    /**
-                     * Single Request
-                     */
-                    else {
-                        ProxyResponse proxyResponse = new ProxyResponse();
-                        if (response == null) {
-                            proxyResponse.setStatusCode(504);
-                            proxyResponse.setStatusMessage("Gateway Time-out");
-                            proxyResponse.setHeaders(makeDefaultHeaders());
-                            proxyResponse.setBody(null);
-                        } else {
-                            proxyResponse.setStatusCode(response.statusCode());
-                            proxyResponse.setStatusMessage(response.statusMessage());
-                            proxyResponse.setHeaders(response.headers());
-                            proxyResponse.setBody(response.body());
-                        }
-                        consumer.accept(proxyResponse);
+                    // END
+                    if (processingCount.decrementAndGet() == 0) {
+                        Buffer proxyBody = Buffer.buffer(new GsonBuilder().create().toJson(result));
+                        ProxyHttpResponse proxyHttpResponse = new ProxyHttpResponse();
+                        proxyHttpResponse.setStatusCode(200);
+                        proxyHttpResponse.setStatusMessage("OK");
+                        proxyHttpResponse.setHeaders(makeProxyResponseHeaders());
+                        proxyHttpResponse.setBody(proxyBody);
+                        consumer.accept(proxyHttpResponse);
                     }
                 }
             });
@@ -179,21 +153,11 @@ public class ProxyHttpClient {
     private ArrayList<String> getTargetURI(String originPath) {
         ArrayList<String> result = new ArrayList<>();
         ArrayList<String> uriList = new ArrayList<>();
-        mProxyInfo.getTargets().forEach(targetBaseUri -> {
+        mProxyHttpInfo.getTargets().forEach(targetBaseUri -> {
             String uri = targetBaseUri + "/" + originPath;
             uriList.add(uri);
         });
-        if (mProxyInfo.getType().equalsIgnoreCase(ProxyConfig.ChannelType.ROUND_ROBIN)) {
-            String uri = uriList.get(mRoundRobinIndex);
-            mRoundRobinIndex = (mRoundRobinIndex + 1) % mProxyInfo.getTargets().size();
-            result.add(uri);
-        } else if (mProxyInfo.getType().equalsIgnoreCase(ProxyConfig.ChannelType.RANDOM)) {
-            int index = (int) (System.nanoTime() % mProxyInfo.getTargets().size());
-            mLogger.trace("index = " + index);
-            result.add(mProxyInfo.getTargets().get(index));
-        } else if (mProxyInfo.getType().equalsIgnoreCase(ProxyConfig.ChannelType.ALL)) {
-            result.addAll(uriList);
-        }
+        result.addAll(uriList);
         return result;
     }
 

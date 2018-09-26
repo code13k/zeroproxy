@@ -3,7 +3,7 @@ package org.code13k.zeroproxy.model;
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
 
-public class ProxyResponse extends BasicModel {
+public class ProxyHttpResponse extends BasicModel {
     private int statusCode;
     private String statusMessage;
     private MultiMap headers;

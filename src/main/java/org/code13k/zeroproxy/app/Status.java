@@ -1,6 +1,7 @@
 package org.code13k.zeroproxy.app;
 
 import org.code13k.zeroproxy.business.proxy.http.ProxyHttpManager;
+import org.code13k.zeroproxy.business.proxy.ws.ProxyWsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class Status {
      */
     public void init() {
         // Timer
-        Timer timer = new Timer("perri-status-logging");
+        Timer timer = new Timer("zeroproxy-status");
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -66,6 +67,12 @@ public class Status {
 
         // Processed count (HTTP Proxy)
         sb.append(", ProxyHttpCount=" + ProxyHttpManager.getInstance().getProcessedCount());
+
+        // Connected count (WS Proxy)
+        sb.append(", ProxyWsConnectedCount=" + ProxyWsManager.getInstance().getConnectedCount());
+
+        // Sent text count (WS Proxy)
+        sb.append(", ProxyWsSentTextCount=" + ProxyWsManager.getInstance().getSentTextCount());
 
         // End
         mLogger.info(sb.toString());

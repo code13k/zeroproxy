@@ -11,9 +11,9 @@ import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.StringUtils;
 import org.code13k.zeroproxy.business.proxy.http.ProxyHttpManager;
 import org.code13k.zeroproxy.config.AppConfig;
-import org.code13k.zeroproxy.config.ProxyConfig;
-import org.code13k.zeroproxy.model.ProxyResponse;
-import org.code13k.zeroproxy.model.config.proxy.ProxyInfo;
+import org.code13k.zeroproxy.config.ProxyHttpConfig;
+import org.code13k.zeroproxy.model.ProxyHttpResponse;
+import org.code13k.zeroproxy.model.config.proxy.ProxyHttpInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,23 +45,11 @@ public class ProxyHttpServer extends AbstractVerticle {
         HttpServer httpServer = vertx.createHttpServer(httpServerOptions);
 
         // Routing
-        ArrayList<ProxyInfo> channelList = ProxyConfig.getInstance().getChannelList();
+        ArrayList<ProxyHttpInfo> channelList = ProxyHttpConfig.getInstance().getChannelList();
         Router router = Router.router(vertx);
         for (int index = 0; index < channelList.size(); index++) {
-            ProxyInfo channel = channelList.get(index);
-
-            // Make route path
-            String location = channel.getLocation();
-            if (location.length() == 1) {
-                location = location + "*";
-            } else {
-                if ('/' == location.charAt(location.length() - 1)) {
-                    location = location + "*";
-                } else if ('*' != location.charAt(location.length() - 1)) {
-                    location = location + "/*";
-                }
-            }
-            final String routePath = location;
+            final ProxyHttpInfo channel = channelList.get(index);
+            final String routePath = makeRoutePath(channel.getLocation());
             final int channelIndex = index;
             mLogger.trace("routePath=" + routePath);
             mLogger.trace("channelIndex=" + channelIndex);
@@ -73,11 +61,11 @@ public class ProxyHttpServer extends AbstractVerticle {
                 mLogger.debug("CHANNEL-INDEX # " + channelIndex);
 
                 // Init
-                final ProxyInfo proxyInfo = ProxyConfig.getInstance().getChannel(channelIndex);
+                final ProxyHttpInfo proxyHttpInfo = ProxyHttpConfig.getInstance().getChannel(channelIndex);
                 final HttpMethod requestMethod = routingContext.request().method();
                 final MultiMap requestHeaders = routingContext.request().headers();
                 final String requestUri = routingContext.request().uri();
-                final String pathString = parsePath(requestUri, proxyInfo.getLocation());
+                final String pathString = parsePath(requestUri, proxyHttpInfo.getLocation());
 
                 // Log
                 if (mLogger.isTraceEnabled() == true) {
@@ -102,25 +90,25 @@ public class ProxyHttpServer extends AbstractVerticle {
                     public void handle(Buffer body) {
                         mLogger.trace("BODY # " + body.toString("UTF-8"));
 
-                        ProxyHttpManager.getInstance().proxy(channelIndex, pathString, requestMethod, requestHeaders, body, new Consumer<ProxyResponse>() {
+                        ProxyHttpManager.getInstance().proxy(channelIndex, pathString, requestMethod, requestHeaders, body, new Consumer<ProxyHttpResponse>() {
                             @Override
-                            public void accept(ProxyResponse proxyResponse) {
+                            public void accept(ProxyHttpResponse proxyHttpResponse) {
                                 try {
                                     if (routingContext.response().closed() == true) {
                                         mLogger.info("Response is closed # " + routingContext.response().toString());
                                     } else if (routingContext.response().ended() == true) {
                                         mLogger.info("Response is ended # " + routingContext.response().toString());
                                     } else {
-                                        if (proxyResponse == null) {
+                                        if (proxyHttpResponse == null) {
                                             sendResponse(routingContext, 502, "Bad Gateway");
                                         } else {
-                                            routingContext.response().headers().addAll(proxyResponse.getHeaders());
-                                            routingContext.response().setStatusCode(proxyResponse.getStatusCode());
-                                            routingContext.response().setStatusMessage(proxyResponse.getStatusMessage());
-                                            if (proxyResponse.getBody() == null) {
+                                            routingContext.response().headers().addAll(proxyHttpResponse.getHeaders());
+                                            routingContext.response().setStatusCode(proxyHttpResponse.getStatusCode());
+                                            routingContext.response().setStatusMessage(proxyHttpResponse.getStatusMessage());
+                                            if (proxyHttpResponse.getBody() == null) {
                                                 routingContext.response().end();
                                             } else {
-                                                routingContext.response().end(proxyResponse.getBody());
+                                                routingContext.response().end(proxyHttpResponse.getBody());
                                             }
                                         }
                                     }
@@ -174,15 +162,32 @@ public class ProxyHttpServer extends AbstractVerticle {
     /**
      * Send response
      */
-    public static void sendResponse(RoutingContext routingContext, int statusCode, String statusMessage) {
+    private void sendResponse(RoutingContext routingContext, int statusCode, String statusMessage) {
         routingContext.response().putHeader(HttpHeaderNames.CONTENT_TYPE, "text/plain");
         routingContext.response().setStatusCode(statusCode).setStatusMessage(statusMessage).end(statusMessage);
     }
 
     /**
+     * Make route path
+     */
+    private String makeRoutePath(String location) {
+        String routePath = location;
+        if (routePath.length() == 1) {
+            routePath = routePath + "*";
+        } else {
+            if ('/' == routePath.charAt(routePath.length() - 1)) {
+                routePath = routePath + "*";
+            } else if ('*' != routePath.charAt(routePath.length() - 1)) {
+                routePath = routePath + "/*";
+            }
+        }
+        return routePath;
+    }
+
+    /**
      * Parse path
      */
-    public static String parsePath(String requestUrl, String location) {
+    private String parsePath(String requestUrl, String location) {
         if (StringUtils.isEmpty(requestUrl) == true) {
             return null;
         }
