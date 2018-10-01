@@ -99,6 +99,15 @@ public class ApiHttpServer extends AbstractVerticle {
                 }
             });
         });
+        // GET /app/config
+        router.route().method(HttpMethod.GET).path("/app/config").handler(routingContext -> {
+            routingContext.request().endHandler(new Handler<Void>() {
+                @Override
+                public void handle(Void event) {
+                    responseHttpOK(routingContext, mAppAPI.config());
+                }
+            });
+        });
         // GET /app/hello
         router.route().method(HttpMethod.GET).path("/app/hello").handler(routingContext -> {
             routingContext.request().endHandler(new Handler<Void>() {
