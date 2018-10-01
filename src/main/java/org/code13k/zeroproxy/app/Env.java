@@ -1,11 +1,19 @@
 package org.code13k.zeroproxy.app;
 
 import org.apache.commons.lang3.StringUtils;
-import org.code13k.zeroproxy.lib.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 public class Env {
     // Logger
@@ -14,7 +22,6 @@ public class Env {
     // Data
     private String mHostname = "";
     private String mIP = "";
-    private int mProcessorCount = 0;
     private String mVersionString = "";
     private String mJarFilename = "";
 
@@ -56,30 +63,15 @@ public class Env {
             mLogger.error("Failed to get IP", e);
         }
 
-        // Processor Count
-        try {
-            mProcessorCount = Runtime.getRuntime().availableProcessors();
-        } catch (Exception e) {
-            mLogger.error("Filed to get processor count", e);
-        }
-
         // Version
         try {
-            mVersionString = Util.getApplicationVersion();
+            mVersionString = parseApplicationVersion();
         } catch (Exception e) {
             mLogger.error("Failed to get version", e);
         }
 
         // Jar File Name
-        String javaClassPath = System.getProperty("java.class.path");
-        String jarFilename = "";
-        if (StringUtils.isBlank(javaClassPath) == false) {
-            String[] temp = StringUtils.split(javaClassPath, "/");
-            if (temp.length > 0) {
-                jarFilename = temp[temp.length - 1];
-            }
-        }
-        mJarFilename = jarFilename;
+        mJarFilename = parseJarFilename();
 
         // End
         logging();
@@ -89,35 +81,31 @@ public class Env {
      * Logging
      */
     public void logging() {
-        // Begin
+        Map<String, Object> values = values();
         mLogger.info("------------------------------------------------------------------------");
         mLogger.info("Application Environments");
         mLogger.info("------------------------------------------------------------------------");
-
-        // Hostname
-        mLogger.info("Hostname = " + mHostname);
-
-        // IP
-        mLogger.info("IP = " + mIP);
-
-        // Processor Count
-        mLogger.info("Processor count = " + mProcessorCount);
-
-        // Version
-        mLogger.info("Version = " + mVersionString);
-
-        // Jar File Name
-        mLogger.info("Jar filename = " + mJarFilename);
-
-        // End
+        values.forEach((k, v) -> mLogger.info(k + " = " + v));
         mLogger.info("------------------------------------------------------------------------");
     }
 
     /**
-     * String of app version
+     * Get all values
      */
-    public String getVersionString() {
-        return mVersionString;
+    public Map<String, Object> values() {
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("hostname", getHostname());
+        result.put("ip", getIP());
+        result.put("cpuProcessorCount", getProcessorCount());
+        result.put("applicationVersion", getVersionString());
+        result.put("jarFile", getJarFilename());
+        result.put("javaVersion", getJavaVersion());
+        result.put("javaVendor", getJavaVendor());
+        result.put("osVersion", getOsVersion());
+        result.put("osName", getOsName());
+
+        return result;
     }
 
     /**
@@ -138,13 +126,92 @@ public class Env {
      * Processor count of server
      */
     public int getProcessorCount() {
-        return mProcessorCount;
+        return Runtime.getRuntime().availableProcessors();
+    }
+
+    /**
+     * String of app version
+     */
+    public String getVersionString() {
+        return mVersionString;
     }
 
     /**
      * Filename of Jar
      */
-    public String getJarFilename(){
+    public String getJarFilename() {
         return mJarFilename;
+    }
+
+    /**
+     * Get java version
+     */
+    public String getJavaVersion() {
+        return System.getProperty("java.version");
+    }
+
+    /**
+     * Get java vendor
+     */
+    public String getJavaVendor() {
+        return System.getProperty("java.vendor");
+    }
+
+    /**
+     * Get OS name
+     */
+    public String getOsName() {
+        return System.getProperty("os.name");
+    }
+
+    /**
+     * Get OS version
+     */
+    public String getOsVersion() {
+        return System.getProperty("os.version");
+    }
+
+    /**
+     * Get app version from manifest info
+     */
+    private String parseApplicationVersion() {
+        Enumeration resourceEnum;
+        try {
+            resourceEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
+            while (resourceEnum.hasMoreElements()) {
+                try {
+                    URL url = (URL) resourceEnum.nextElement();
+                    InputStream is = url.openStream();
+                    if (is != null) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes attr = manifest.getMainAttributes();
+                        String version = attr.getValue("Implementation-Version");
+                        if (version != null) {
+                            return version;
+                        }
+                    }
+                } catch (Exception e) {
+                    // Nothing
+                }
+            }
+        } catch (IOException e1) {
+            // Nothing
+        }
+        return null;
+    }
+
+    /**
+     * Get jar file name from system property
+     */
+    private String parseJarFilename() {
+        String javaClassPath = System.getProperty("java.class.path");
+        String jarFilename = "";
+        if (StringUtils.isBlank(javaClassPath) == false) {
+            String[] temp = StringUtils.split(javaClassPath, "/");
+            if (temp.length > 0) {
+                jarFilename = temp[temp.length - 1];
+            }
+        }
+        return jarFilename;
     }
 }

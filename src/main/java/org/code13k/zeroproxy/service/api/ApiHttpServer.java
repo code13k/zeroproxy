@@ -81,12 +81,21 @@ public class ApiHttpServer extends AbstractVerticle {
      * Set app router
      */
     private void setAppRouter(Router router) {
+        // GET /app/env
+        router.route().method(HttpMethod.GET).path("/app/env").handler(routingContext -> {
+            routingContext.request().endHandler(new Handler<Void>() {
+                @Override
+                public void handle(Void event) {
+                    responseHttpOK(routingContext, mAppAPI.env());
+                }
+            });
+        });
         // GET /app/status
         router.route().method(HttpMethod.GET).path("/app/status").handler(routingContext -> {
             routingContext.request().endHandler(new Handler<Void>() {
                 @Override
                 public void handle(Void event) {
-                    responseHttpOK(routingContext, mAppAPI.info());
+                    responseHttpOK(routingContext, mAppAPI.status());
                 }
             });
         });

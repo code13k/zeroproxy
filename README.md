@@ -132,30 +132,37 @@ http://example.com:57911/app/ping
 ```
 
 ### API
-#### GET /app/status
-* Get application status and environment.
+#### GET /app/env
+* Get application environments
 ##### Response
 ```json
 {
   "data":{
-    "applicationVersion":"0.1.0-alpha.1",
-    "cpuUsage":2.56,
+    "applicationVersion": "1.4.0",
+    "hostname": "hostname",
+    "osVersion": "10.11.6",
+    "jarFile": "code13k-zeroproxy-1.0.0-alpha.1.jar",
+    "javaVersion": "1.8.0_25",
+    "ip": "192.168.0.121",
+    "javaVendor": "Oracle Corporation",
+    "osName": "Mac OS X",
+    "cpuProcessorCount": 4
+  }
+}
+```
+#### GET /app/status
+* Get application status
+##### Response
+```json
+{
+  "data":{
     "threadInfo":{...},
-    "vmMemoryFree":"190M",
-    "javaVersion":"1.8.0_25",
-    "vmMemoryMax":"3,641M",
-    "currentDate":"2018-09-18T18:48:58.795+09:00",
-    "threadCount":15,
-    "startedDate":"2018-09-18T18:48:40.901+09:00",
-    "javaVendor":"",
-    "runningTimeHour":0,
-    "osName":"Mac OS X",
-    "cpuProcessorCount":4,
-    "vmMemoryTotalFree":"3,585M",
-    "hostname":"",
-    "osVersion":"10.11.6",
-    "jarFile":"code13k-zeroproxy-0.1.0-alpha.1.jar",
-    "vmMemoryAllocated":"245M",
+    "cpuUsage": 2.88,
+    "threadCount": 25,
+    "currentDate": "2018-10-02T01:15:21.290+09:00",
+    "startedDate": "2018-10-02T01:14:40.995+09:00",
+    "runningTimeHour": 0,
+    "vmMemoryUsage":{...}
   }
 }
 ```
